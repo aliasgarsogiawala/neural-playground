@@ -1,7 +1,7 @@
 langchain
 wikipedia
-lanchain-community
-lanchain-openai
+langchain-community
+langchain-openai
 langchain-anthropic
 pydantic
 python-dotenv
