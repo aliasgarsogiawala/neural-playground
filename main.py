@@ -5,6 +5,6 @@ from langchain_anthropic import ChatAnthropic
 
 load_dotenv()
 
-llm = ChatOpenAI(model="gpt-4-turbo")
-llm2 = ChatAnthropic(model="claude-4-5-sonnet")
-
+llm= ChatOpenAI(model='gpt-4o-mini')
+response=llm.invoke("What is the meaning of life?")
+print(response)
