@@ -3,6 +3,11 @@ from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_core.tools import Tool
 from datetime import datetime
 
+# Wrap third-party callables to avoid evaluating their complex type
+# annotations (which can reference names like `uuid` not present in
+# their module globals). Using local wrappers with no annotations
+# prevents `get_type_hints` from failing at agent construction.
+
 
 def save_to_txt(data: str, filename: str = "research_output.txt") -> str:
     """Save research data to a text file."""
@@ -30,15 +35,31 @@ save_tool = Tool(
 
 search = DuckDuckGoSearchRun()
 
+
+def _web_search_wrapper(query, *args, **kwargs):
+    return search.run(query, *args, **kwargs)
+
+
 search_tool = Tool(
     name="web_search",
-    func=search.run,
+    func=_web_search_wrapper,
     description="Use this tool to search the web for recent or current information.",
 )
 
 api_wrapper = WikipediaAPIWrapper(
     top_k_results=1,
-    doc_content_chars_max=500
+    doc_content_chars_max=500,
 )
 
 wiki_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
+
+
+def _wiki_query_wrapper(query: str, *args, **kwargs):
+    return wiki_tool.run(query, *args, **kwargs)
+
+
+wiki_tool = Tool(
+    name="wikipedia_query",
+    func=_wiki_query_wrapper,
+    description="Use this tool to query Wikipedia for summaries and content.",
+)
